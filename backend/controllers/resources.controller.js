@@ -1,0 +1,90 @@
+const { Resource, Project } = require("../models");
+
+// Obtener todos los recursos
+const getAllResources = async (req, res) => {
+    try {
+        const resources = await Resource.findAll({
+            include: [{ model: Project, attributes: ['id', 'nombre'] }]
+        });
+        res.status(200).json(resources);
+    } catch (error) {
+        console.error('Error al obtener recursos:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
+
+// Obtener recurso por ID
+const getResourceById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resource = await Resource.findByPk(id, {
+            include: [{ model: Project, attributes: ['id', 'nombre'] }]
+        });
+        if (!resource) {
+            return res.status(404).json({ message: 'Recurso no encontrado.' });
+        }
+        res.status(200).json(resource);
+    } catch (error) {
+        console.error('Error al obtener recurso:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
+
+// Crear un nuevo recurso
+const createResource = async (req, res) => {
+    try {
+        const { tipo, cantidad, disponible, id_proyecto } = req.body;
+
+        // Validar que exista el proyecto
+        const project = await Project.findByPk(id_proyecto);
+        if (!project) {
+            return res.status(404).json({ message: 'Proyecto no encontrado.' });
+        }
+
+        const newResource = await Resource.create({ tipo, cantidad, disponible, id_proyecto });
+        res.status(201).json(newResource);
+    } catch (error) {
+        console.error('Error al crear recurso:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
+
+// Actualizar recurso
+const updateResource = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resource = await Resource.findByPk(id);
+        if (!resource) {
+            return res.status(404).json({ message: 'Recurso no encontrado.' });
+        }
+        await resource.update(req.body);
+        res.status(200).json({ message: 'Recurso actualizado correctamente.' });
+    } catch (error) {
+        console.error('Error al actualizar recurso:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
+
+// Eliminar recurso
+const deleteResource = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resource = await Resource.findByPk(id);
+        if (!resource) {
+            return res.status(404).json({ message: 'Recurso no encontrado.' });
+        }
+        await resource.destroy();
+        res.status(200).json({ message: 'Recurso eliminado correctamente.' });
+    } catch (error) {
+        console.error('Error al eliminar recurso:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
+
+module.exports = {
+    getAllResources,
+    getResourceById,
+    createResource,
+    updateResource,
+    deleteResource
+};
