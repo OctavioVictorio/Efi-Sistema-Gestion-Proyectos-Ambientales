@@ -8,7 +8,7 @@ const port = 3000;
 const authRouter = require('./routes/auth.routes');
 const usersRouter = require('./routes/users.routes');
 const projectsRouter = require('./routes/projects.routes');
-// const tasksRouter = require('./routes/tasks.routes');
+const tasksRouter = require('./routes/tasks.routes');
 const resourcesRouter = require('./routes/resources.routes');
 
 // Middlewares
@@ -19,7 +19,7 @@ app.use(express.json());
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/projects', projectsRouter);
-// app.use('/tasks', tasksRouter);
+app.use('/tasks', tasksRouter);
 app.use('/resources', resourcesRouter);
 
 app.listen(port, () => {
