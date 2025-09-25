@@ -3,12 +3,26 @@ const { Task, Project, User } = require("../models");
 // Obtener todas las tareas
 const getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.findAll({
-      include: [
-        { model: Project, attributes: ["id", "nombre"] },
-        { model: User, attributes: ["id", "nombre", "correo"] }
-      ]
-    });
+    let tasks;
+    if (req.user.rol === "voluntario") {
+      // Un voluntario solo ve sus tareas
+      tasks = await Task.findAll({
+        where: { asignado_a: req.user.id },
+        include: [
+          { model: Project, attributes: ["id", "nombre"] },
+          { model: User, attributes: ["id", "nombre", "correo"] }
+        ]
+      });
+    } else {
+      // Admin y gestor ven todas las tareas
+      tasks = await Task.findAll({
+        include: [
+          { model: Project, attributes: ["id", "nombre"] },
+          { model: User, attributes: ["id", "nombre", "correo"] }
+        ]
+      });
+    }
+
     res.status(200).json(tasks);
   } catch (error) {
     console.error("Error al obtener tareas:", error);
@@ -28,6 +42,11 @@ const getTaskById = async (req, res) => {
     });
 
     if (!task) return res.status(404).json({ message: "Tarea no encontrada." });
+
+    // Validación de permisos
+    if (req.user.rol === "voluntario" && task.asignado_a !== req.user.id) {
+      return res.status(403).json({ message: "No tiene permiso sobre esta tarea." });
+    }
 
     res.status(200).json(task);
   } catch (error) {
@@ -64,6 +83,11 @@ const updateTask = async (req, res) => {
     const task = await Task.findByPk(id);
 
     if (!task) return res.status(404).json({ message: "Tarea no encontrada." });
+
+    // Validación de permisos
+    if (req.user.rol === "voluntario" && task.asignado_a !== req.user.id) {
+      return res.status(403).json({ message: "No tiene permiso para actualizar esta tarea." });
+    }
 
     const { nombre, descripcion, fecha_limite, estado, id_proyecto, asignado_a } = req.body;
 
