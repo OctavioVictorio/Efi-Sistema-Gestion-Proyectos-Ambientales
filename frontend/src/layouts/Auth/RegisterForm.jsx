@@ -8,13 +8,11 @@ import { Password } from "primereact/password";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom"; 
-import { Link } from 'react-router-dom';
 
 const RegisterForm = () => {
     const { register } = useContext(AuthContext);
     const navigate = useNavigate(); 
 
-    // Valores Iniciales
     const initialValues = {
         nombre: "",
         email: "",    
@@ -22,7 +20,6 @@ const RegisterForm = () => {
         edad: null,
     };
 
-    // Esquema de Validación
     const validationSchema = Yup.object({
         nombre: Yup.string().required("Campo requerido"),
         email: Yup.string().email("Correo electrónico inválido").required("Campo requerido"),
@@ -35,7 +32,6 @@ const RegisterForm = () => {
             .required("Campo requerido"),
     });
 
-    // Función de Envío
     const onSubmit = async (values, { setSubmitting }) => {
         setSubmitting(true);
         await register(values); 
@@ -52,16 +48,16 @@ const RegisterForm = () => {
                 >
                 {({ handleChange, values, setFieldValue, isSubmitting }) => (
                     <Form className="p-fluid flex flex-column gap-3">
-                        
-                        {/* Campo Nombre */}
+                        {/* Nombre */}
                         <div className="field">
                             <label htmlFor="nombre">Nombre</label>
                             <InputText
-                                name="nombre"
                                 id="nombre"
+                                name="nombre"
                                 value={values.nombre}
                                 onChange={handleChange}
                                 disabled={isSubmitting}
+                                autoComplete="name"
                             />
                             <ErrorMessage
                                 name="nombre"
@@ -70,15 +66,16 @@ const RegisterForm = () => {
                             />
                         </div>
 
-                        {/* Campo Email */}
+                        {/* Email */}
                         <div className="field">
                             <label htmlFor="email">Correo Electrónico</label>
                             <InputText
-                                name="email"
                                 id="email"
+                                name="email"
                                 value={values.email}
                                 onChange={handleChange}
                                 disabled={isSubmitting}
+                                autoComplete="email"
                             />
                             <ErrorMessage
                                 name="email"
@@ -87,17 +84,18 @@ const RegisterForm = () => {
                             />
                         </div>
 
-                        {/* Campo Contraseña */}
+                        {/* Password */}
                         <div className="field">
                             <label htmlFor="password">Contraseña</label>
                             <Password
+                                inputId="password"   // <-- importante para accesibilidad
                                 name="password"
-                                id="password"
                                 value={values.password}
                                 onChange={handleChange}
                                 toggleMask
                                 feedback={false}
                                 disabled={isSubmitting}
+                                pt={{ input: { autoComplete: "new-password" } }}
                             />
                             <ErrorMessage
                                 name="password"
@@ -106,12 +104,12 @@ const RegisterForm = () => {
                             />
                         </div>
 
-                        {/* Campo Edad */}
+                        {/* Edad */}
                         <div className="field">
                             <label htmlFor="edad">Edad</label>
                             <InputNumber
-                                name="edad"
                                 id="edad"
+                                name="edad"
                                 value={values.edad}
                                 onValueChange={(e) => setFieldValue("edad", e.value)}
                                 min={1}
@@ -134,7 +132,7 @@ const RegisterForm = () => {
                             disabled={isSubmitting}
                         />
 
-                        {/* Botón de Navegación */}
+                        {/* Navegación */}
                         <Button
                             label="¿Ya tienes una cuenta? Inicia sesión"
                             link

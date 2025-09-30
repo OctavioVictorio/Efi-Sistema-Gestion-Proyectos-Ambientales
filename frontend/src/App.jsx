@@ -38,7 +38,7 @@ function App() {
           <Fragment>
             <Routes>
               {/* Ruta Principal (Pública si no está logueado, luego protegida) */}
-              <Route path="/" element={<HomeRoutes />} />
+              <Route path="/*" element={<HomeRoutes />} />
               <Route path='/reset-password' element={<ResetPassword/>}/>
               {/* RUTAS PÚBLICAS Y PROTEGIDAS DE RE-ACCESO */}
               {/* Usamos PublicRoute para que no se pueda acceder si ya estás logueado */}

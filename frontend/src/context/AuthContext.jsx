@@ -80,9 +80,17 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         try {
-            const response = await authService.register(userData);
+            // Cambiamos las claves para que coincidan con el backend
+            const payload = {
+                nombre: userData.nombre,
+                email: userData.email,
+                password: userData.password,
+                edad: userData.edad
+            };
+
+            const response = await authService.register(payload);
             const { status, data } = response;
-            
+
             if (status === 201) {
                 notifySuccess("Usuario creado exitosamente"); 
                 navigate("/login"); 

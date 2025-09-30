@@ -10,19 +10,20 @@ const resetTokens = new Map();
 
 // Función de registro
 const register = async (req, res) => {
-    const { nombre, correo, contraseña, rol } = req.body;
+    const { nombre, email, password, rol, edad } = req.body; // Cambiado a email y password
     try {
-        const userExist = await User.findOne({ where: { correo } });
-        if (userExist) {
-            return res.status(400).json({ message: 'El correo ya está registrado.' });
-        }
-        const hashedPassword = await bcrypt.hash(contraseña, 10);
+        const userExist = await User.findOne({ where: { correo: email } }); 
+        if (userExist) return res.status(400).json({ message: 'El correo ya está registrado.' });
+
+        const hashedPassword = await bcrypt.hash(password, 10); 
         const newUser = await User.create({
             nombre,
-            correo,
+            correo: email, 
             contraseña: hashedPassword,
-            rol: rol || 'voluntario', 
+            rol: rol || 'voluntario',
+            edad: edad || null, 
         });
+
         res.status(201).json({ message: 'Usuario creado correctamente', newUser });
     } catch (error) {
         console.error('Error al crear el usuario:', error);
@@ -32,24 +33,21 @@ const register = async (req, res) => {
 
 // Función de login
 const login = async (req, res) => {
-    const { correo, contraseña } = req.body;
+    const { email, password } = req.body; 
     try {
-        const userExist = await User.findOne({ where: { correo } });
-        if (!userExist) {
-            return res.status(400).json({ message: 'Credenciales inválidas.' });
-        }
-        const validPassword = await bcrypt.compare(contraseña, userExist.contraseña);
-        if (!validPassword) {
-            return res.status(403).json({ message: 'Contraseña o correo incorrecto.' });
-        }
-        
+        const userExist = await User.findOne({ where: { correo: email } });
+        if (!userExist) return res.status(400).json({ message: 'Credenciales inválidas.' });
+
+        const validPassword = await bcrypt.compare(password, userExist.contraseña);
+        if (!validPassword) return res.status(403).json({ message: 'Contraseña o correo incorrecto.' });
+
         const user = {
             id: userExist.id,
             nombre: userExist.nombre,
             correo: userExist.correo,
             rol: userExist.rol,
         };
-        const token = jwt.sign({ user: user }, process.env.JWT_SECRET || 'secreto123', { expiresIn: '1h' });
+        const token = jwt.sign({ user }, process.env.JWT_SECRET || 'secreto123', { expiresIn: '1h' });
 
         res.status(200).json({ message: 'Inicio de sesión exitoso', token });
     } catch (error) {
@@ -57,7 +55,6 @@ const login = async (req, res) => {
         res.status(500).json({ message: 'Error al iniciar sesión', error: error.message });
     }
 };
-
 
 const resetEmailTemplate = ({ nombre, resetUrl }) => {
     return `

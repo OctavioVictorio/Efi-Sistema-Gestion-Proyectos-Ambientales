@@ -8,26 +8,21 @@ import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 
-
 const LoginForm = () => {
-    // 1. Obtener funciones y hook
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // 2. Valores Iniciales (Adaptados a 'correo' y 'contraseña')
-    const initialValuesUser = {
-        correo: "",
-        contraseña: "",
+    const initialValues = {
+        email: "",
+        password: "",
     };
 
-    // 3. Esquema de Validación (Adaptado a 'correo' y 'contraseña')
-    const validationSchemaUser = Yup.object({
-        correo: Yup.string().email("Correo electrónico inválido").required("Campo requerido"),
-        contraseña: Yup.string().required("Campo requerido"),
+    const validationSchema = Yup.object({
+        email: Yup.string().email("Correo electrónico inválido").required("Campo requerido"),
+        password: Yup.string().required("Campo requerido"),
     });
 
-    // 4. Función de Envío
-    const onSubmitLogin = async (values, { setSubmitting }) => {
+    const onSubmit = async (values, { setSubmitting }) => {
         setSubmitting(true);
         await login(values);
         setSubmitting(false);
@@ -37,44 +32,45 @@ const LoginForm = () => {
         <div className="flex justify-content-center align-items-center min-h-screen surface-ground">
             <Card title="Iniciar sesión" className="w-full md:w-25rem shadow-3">
                 <Formik
-                    initialValues={initialValuesUser}
-                    validationSchema={validationSchemaUser}
-                    onSubmit={onSubmitLogin}
+                    initialValues={initialValues}
+                    validationSchema={validationSchema}
+                    onSubmit={onSubmit}
                 >
                 {({ handleChange, values, isSubmitting }) => (
                     <Form className="p-fluid flex flex-column gap-3">
-                        
-                        {/* Campo Correo */}
+                        {/* Campo Email */}
                         <div className="field">
-                            <label htmlFor="correo">Correo Electrónico</label>
+                            <label htmlFor="email">Correo Electrónico</label>
                             <InputText
-                                name="correo"
-                                id="correo"
-                                value={values.correo}
+                                name="email"
+                                id="email"
+                                value={values.email}
                                 onChange={handleChange}
                                 disabled={isSubmitting}
+                                autoComplete="email"
                             />
                             <ErrorMessage
-                                name="correo"
+                                name="email"
                                 component="div"
                                 className="p-error text-sm"
                             />
                         </div>
 
-                        {/* Campo Contraseña */}
+                        {/* Campo Password */}
                         <div className="field">
-                            <label htmlFor="contraseña">Contraseña</label>
+                            <label htmlFor="password">Contraseña</label>
                             <Password
-                                name="contraseña"
-                                id="contraseña"
-                                value={values.contraseña}
+                                name="password"
+                                id="password"
+                                value={values.password}
                                 onChange={handleChange}
                                 toggleMask
                                 feedback={false} 
                                 disabled={isSubmitting}
+                                pt={{ input: { autoComplete: "current-password" } }}
                             />
                             <ErrorMessage
-                                name="contraseña"
+                                name="password"
                                 component="div"
                                 className="p-error text-sm"
                             />
