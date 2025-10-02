@@ -3,19 +3,18 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Componentes y Contextos
 import { AuthProvider } from './context/AuthContext'; 
+import { ProjectProvider } from './context/ProjectContext'; // 👈 IMPORTANTE
 import { TOAST_REF } from './utils/ToastRef'; 
 import Navbar from './components/Navbar'; 
 
-// Importaciones de Layouts (Se asume la creación de estos archivos)
+// Importaciones de Layouts
 import HomeView from './layouts/home/HomeView'; 
 import LoginForm from './layouts/Auth/LoginForm';
 import RegisterForm from './layouts/Auth/RegisterForm';
 import ForgotPassword from './layouts/Auth/ForgotPassword';
 import ResetPassword from './layouts/Auth/ResetPassword';
-
-// import ProjectsRoutes from './layouts/projects/ProjectsRoutes'; 
-// import TasksRoutes from './layouts/tasks/TasksRoutes';    
-import HomeRoutes from './layouts/home/index'
+import ProjectsRoutes from './layouts/projects'; // CORREGIDO: ahora importamos las rutas del módulo
+import HomeRoutes from './layouts/home/index';
 
 // Utilidades de Rutas
 import PrivateRoute from './utils/PrivateRoute';
@@ -28,20 +27,20 @@ import 'primereact/resources/themes/lara-dark-indigo/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
-
 function App() {
   return (
     <Router>
       <Toast ref={TOAST_REF} position='top-right'/>
-        <AuthProvider>
+      <AuthProvider>
+        <ProjectProvider> {/* 🚀 Envolvemos TODO en ProjectProvider */}
           <Navbar />
           <Fragment>
             <Routes>
               {/* Ruta Principal (Pública si no está logueado, luego protegida) */}
               <Route path="/*" element={<HomeRoutes />} />
               <Route path='/reset-password' element={<ResetPassword/>}/>
+
               {/* RUTAS PÚBLICAS Y PROTEGIDAS DE RE-ACCESO */}
-              {/* Usamos PublicRoute para que no se pueda acceder si ya estás logueado */}
               <Route path='/login' element={
                 <PublicRoute>
                   <LoginForm/>
@@ -61,20 +60,16 @@ function App() {
               }/>
               
               {/* RUTAS PROTEGIDAS Y AGRUPADAS */}
-              
               {/* Gestión de Proyectos (Solo Admin y Gestor) */}
-              {/* <Route
-                path="/projects/*"
-                element={
-                  <PrivateRoute>
-                    <RequireRole roles={['admin', 'gestor']}>
-                      <ProjectsRoutes />
-                    </RequireRole>
-                  </PrivateRoute>
-                }
-              /> */}
+              <Route path='/projects/*' element={
+                <PrivateRoute>
+                  <RequireRole roles={['admin', 'gestor']}>
+                    <ProjectsRoutes />
+                  </RequireRole>
+                </PrivateRoute>
+              }/>
 
-              {/* Gestión de Tareas (Todos los roles, el componente TasksRoutes manejará sub-rutas) */}
+              {/* Gestión de Tareas (Todos los roles) */}
               {/* <Route
                 path="/tasks/*"
                 element={
@@ -86,11 +81,11 @@ function App() {
               
               {/* 404 - Ruta no encontrada */}
               <Route path="*" element={<h1>404 | Página No Encontrada</h1>} />
-
             </Routes>
           </Fragment>
-        </AuthProvider>
-      </Router>
+        </ProjectProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
