@@ -1,4 +1,3 @@
-// context/ProjectContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
 import projectService from "../services/projects.service";
 
@@ -24,8 +23,10 @@ export const ProjectProvider = ({ children }) => {
     try {
       const res = await projectService.create(data);
       setProjects((prev) => [...prev, res.data]);
+      return true;
     } catch (err) {
       console.error("Error al crear proyecto:", err);
+      return false;
     }
   };
 
@@ -35,8 +36,10 @@ export const ProjectProvider = ({ children }) => {
       setProjects((prev) =>
         prev.map((p) => (p.id === id ? { ...p, ...data } : p))
       );
+      return true;
     } catch (err) {
       console.error("Error al actualizar proyecto:", err);
+      return false;
     }
   };
 
@@ -44,12 +47,13 @@ export const ProjectProvider = ({ children }) => {
     try {
       await projectService.remove(id);
       setProjects((prev) => prev.filter((p) => p.id !== id));
+      return true;
     } catch (err) {
       console.error("Error al eliminar proyecto:", err);
+      return false;
     }
   };
 
-  // 🚀 Cargar proyectos una sola vez
   useEffect(() => {
     fetchProjects();
   }, []);

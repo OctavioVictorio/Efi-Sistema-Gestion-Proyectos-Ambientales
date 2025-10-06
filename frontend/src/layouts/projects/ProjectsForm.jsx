@@ -1,12 +1,20 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useProjects } from "../../context/ProjectContext";
 import useProjectsForm from "./useProjectsForm";
 
+import { notifySuccess, notifyError } from "../../utils/Notifier"; 
+// PrimeReact Components
+import { Card } from "primereact/card";
+import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
+import { Calendar } from "primereact/calendar";
+import { Button } from "primereact/button";
+
 const ProjectsForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { projects, createProject, updateProject } = useProjects();
+  const { projects, createProject, updateProject, loading } = useProjects();
   const { formData, handleChange, setFormData } = useProjectsForm();
 
   const normalizeDates = (project) => {
@@ -15,11 +23,12 @@ const ProjectsForm = () => {
     ["fecha_inicio", "fecha_fin"].forEach((k) => {
       if (clone[k]) {
         try {
-          const d = new Date(clone[k]);
-          clone[k] = d.toISOString().slice(0, 10);
-        } catch {}
+          clone[k] = new Date(clone[k]); 
+        } catch {
+          clone[k] = null;
+        }
       } else {
-        clone[k] = "";
+        clone[k] = null; 
       }
     });
     return clone;
@@ -29,12 +38,12 @@ const ProjectsForm = () => {
     if (id && projects && projects.length > 0) {
       const project = projects.find((p) => p.id === Number(id));
       if (project) setFormData(normalizeDates(project));
-    } else {
+    } else if (!id) {
       setFormData({
         nombre: "",
         descripcion: "",
-        fecha_inicio: "",
-        fecha_fin: "",
+        fecha_inicio: null, 
+        fecha_fin: null,
         ubicacion: "",
       });
     }
@@ -43,145 +52,141 @@ const ProjectsForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.nombre || formData.nombre.trim().length < 2) {
-      alert("El nombre del proyecto es obligatorio.");
+      notifyError("El nombre del proyecto es obligatorio y debe tener al menos 2 caracteres.");
       return;
     }
-    const payload = { ...formData };
-    if (id) await updateProject(Number(id), payload);
-    else await createProject(payload);
-    navigate("/projects");
+    
+    const payload = { 
+        ...formData,
+        fecha_inicio: formData.fecha_inicio ? formData.fecha_inicio.toISOString().split('T')[0] : null,
+        fecha_fin: formData.fecha_fin ? formData.fecha_fin.toISOString().split('T')[0] : null,
+    };
+    
+    // 1. DECLARA LA VARIABLE 'success'
+    let success = false; 
+
+    if (id) {
+      success = await updateProject(Number(id), payload);
+    } else {
+      success = await createProject(payload);
+    }
+
+    // 2. Este bloque solo se ejecuta si la API devuelve true
+    if (success) {
+      // Usamos los campos 'summary' y 'detail' para mejorar el toast
+      notifySuccess('Éxito', `Proyecto ${id ? "actualizado" : "creado"} exitosamente.`);
+      navigate("/projects");
+    } else {
+      // 3. Este bloque se ejecuta si la API devuelve false
+      notifyError('Error de API', "Error al guardar el proyecto. Intenta de nuevo.");
+    }
+  };
+  
+  const handleCalendarChange = (name, e) => {
+    setFormData(prev => ({ ...prev, [name]: e.value }));
   };
 
-  return (
-    <div className="container mt-4">
-      <style>{`
-        .form-card {
-          border-radius: 14px;
-          box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        .form-group {
-          margin-bottom: 1.2rem; /* separación uniforme entre campos */
-        }
-        .form-label {
-          display: block;
-          margin-bottom: 0.4rem; /* separación entre label e input */
-          font-weight: 500;
-        }
-        .form-control, textarea {
-          border-radius: 10px;
-          border: 1px solid #ddd;
-          padding: 0.75rem 1rem;
-          transition: border-color .2s, box-shadow .2s;
-        }
-        .form-control:focus, textarea:focus {
-          border-color: #3b82f6;
-          box-shadow: 0 0 6px rgba(59,130,246,0.4);
-        }
-        textarea {
-          resize: none;
-        }
-        .btn-like {
-          display: inline-block;
-          background: #0d6efd;
-          color: white !important;
-          padding: 0.6rem 1.2rem;
-          border-radius: 10px;
-          text-decoration: none;
-          transition: background .2s;
-        }
-        .btn-like:hover {
-          background: #0b5ed7;
-          color: white !important;
-        }
-        .btn-alt {
-          background: #6c757d;
-          color: white !important;
-          border-radius: 10px;
-          padding: 0.6rem 1.2rem;
-          border: none;
-          transition: background .2s;
-        }
-        .btn-alt:hover {
-          background: #5a6268;
-        }
-      `}</style>
+  const header = (
+    <div className="flex align-items-center gap-2">
+      <i className={`pi ${id ? 'pi-pencil' : 'pi-plus-circle'} text-3xl`}></i>
+      <h4 className="mb-0 text-xl font-semibold">
+        {id ? "Editar Proyecto" : "Nuevo Proyecto"}
+      </h4>
+    </div>
+  );
 
-      <div className="card form-card">
-        <div
-          className="card-header p-3"
-          style={{
-            background: "linear-gradient(90deg,#3b82f6,#06b6d4)",
-            color: "white",
-          }}
-        >
-          <h4 className="mb-0">
-            {id ? "✏️ Editar Proyecto" : "➕ Nuevo Proyecto"}
-          </h4>
-        </div>
-        <div className="card-body">
-          <form onSubmit={handleSubmit} className="row g-3">
-            <div className="col-12 form-group">
-              <label className="form-label">Nombre</label>
-              <input
-                name="nombre"
-                type="text"
-                className="form-control"
-                value={formData.nombre}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="col-12 form-group">
-              <label className="form-label">Descripción</label>
-              <textarea
-                name="descripcion"
-                className="form-control"
-                rows="4"
-                value={formData.descripcion}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="col-md-6 form-group">
-              <label className="form-label">Fecha de Inicio</label>
-              <input
+  return (
+    <div className="flex justify-content-center p-5 surface-ground">
+      <Card 
+        title={header} 
+        className="w-full md:w-8 shadow-4 surface-card"
+        style={{borderRadius: '12px'}}
+      >
+        <form onSubmit={handleSubmit} className="p-fluid grid formgrid gap-3">
+          
+          {/* Nombre */}
+          <div className="field col-12">
+            <label htmlFor="nombre" className="font-semibold mb-2 block">Nombre del Proyecto <span className="text-red-500">*</span></label>
+            <InputText
+              id="nombre"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* Descripción */}
+          <div className="field col-12">
+            <label htmlFor="descripcion" className="font-semibold mb-2 block">Descripción</label>
+            <InputTextarea
+              id="descripcion"
+              name="descripcion"
+              rows={5}
+              value={formData.descripcion}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Fecha de Inicio */}
+          <div className="field col-12 md:col-6">
+            <label htmlFor="fecha_inicio" className="font-semibold mb-2 block">Fecha de Inicio</label>
+            <Calendar
+                id="fecha_inicio"
                 name="fecha_inicio"
-                type="date"
-                className="form-control"
                 value={formData.fecha_inicio}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="col-md-6 form-group">
-              <label className="form-label">Fecha de Fin</label>
-              <input
+                onChange={(e) => handleCalendarChange("fecha_inicio", e)}
+                dateFormat="dd/mm/yy"
+                showIcon
+            />
+          </div>
+          
+          {/* Fecha de Fin */}
+          <div className="field col-12 md:col-6">
+            <label htmlFor="fecha_fin" className="font-semibold mb-2 block">Fecha de Fin</label>
+            <Calendar
+                id="fecha_fin"
                 name="fecha_fin"
-                type="date"
-                className="form-control"
                 value={formData.fecha_fin}
-                onChange={handleChange}
+                onChange={(e) => handleCalendarChange("fecha_fin", e)}
+                dateFormat="dd/mm/yy"
+                minDate={formData.fecha_inicio || null} 
+                showIcon
+            />
+          </div>
+
+          {/* Ubicación */}
+          <div className="field col-12">
+            <label htmlFor="ubicacion" className="font-semibold mb-2 block">Ubicación (Lugar físico o área)</label>
+            <InputText
+              id="ubicacion"
+              name="ubicacion"
+              value={formData.ubicacion}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Botones de Acción */}
+          <div className="col-12 flex justify-content-end gap-3 pt-4">
+            <Link to="/projects">
+              <Button 
+                label="Volver" 
+                icon="pi pi-arrow-left" 
+                severity="secondary" 
+                className="p-button-outlined"
+                type="button" 
               />
-            </div>
-            <div className="col-12 form-group">
-              <label className="form-label">Ubicación</label>
-              <input
-                name="ubicacion"
-                type="text"
-                className="form-control"
-                value={formData.ubicacion}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="col-12 d-flex justify-content-between gap-3">
-              <Link to="/projects" className="btn-like">
-                ⬅ Volver
-              </Link>
-              <button type="submit" className="btn-alt">
-                {id ? "Actualizar" : "Crear"}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+            </Link>
+            <Button 
+                type="submit" 
+                label={id ? "Guardar Cambios" : "Crear Proyecto"}
+                icon={loading ? "pi pi-spin pi-spinner" : (id ? "pi pi-save" : "pi-check")}
+                severity="success"
+                disabled={loading}
+            />
+          </div>
+        </form>
+      </Card>
     </div>
   );
 };

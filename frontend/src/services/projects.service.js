@@ -1,11 +1,10 @@
 import api from "./api"; 
 
-// Servicio centralizado de proyectos
 const projectService = {
     getAll: () => api.get("/projects"),
     getById: (id) => api.get(`/projects/${id}`),
-    create: (data) => api.post("/projects", data),
-    update: (id, data) => api.put(`/projects/${id}`, data),
+    create: (payload) => api.post("/projects", payload),
+    update: (id, payload) => api.put(`/projects/${id}`, payload),
     remove: (id) => api.delete(`/projects/${id}`)
 };
 

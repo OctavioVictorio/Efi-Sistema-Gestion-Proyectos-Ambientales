@@ -32,10 +32,10 @@ const ResetPassword = () =>{
 
     // 5. Renderizado
     return(
-        <div className="flex justify-content-center align-items-center min-h-screen surface-ground">
+        <div className="flex justify-content-center p-4">
             <Card 
                 title={invalidLink ? 'Enlace Inválido' : 'Establecer Nueva Contraseña'} 
-                className="w-full md:w-25rem shadow-3 text-center"
+                className="w-full md:w-25rem "
             >
                 {invalidLink ? (
                     <div>

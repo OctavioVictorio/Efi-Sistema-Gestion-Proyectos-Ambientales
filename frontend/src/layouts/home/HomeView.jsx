@@ -69,7 +69,6 @@ const HomeView = () => {
         </div>
     );
 
-    // --- Contenido para usuarios AUTENTICADOS (Dashboard Simple) ---
     const renderDashboard = () => (
         <div className="p-5">
             <h1 className="text-4xl font-bold mb-3">

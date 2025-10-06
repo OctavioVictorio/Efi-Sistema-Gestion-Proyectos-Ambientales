@@ -18,7 +18,7 @@ const decodeUser = (token) => {
             id: decoded.user.id,
             nombre: decoded.user.nombre,
             correo: decoded.user.correo, 
-            rol: decoded.user.rol.toLowerCase(), // <- CONVERTIMOS A MINÚSCULA
+            rol: decoded.user.rol.toLowerCase(), 
         };
     } catch (error) {
         return null;
@@ -64,9 +64,9 @@ export const AuthProvider = ({ children }) => {
                     return; 
                 }
                 
-                setUser(userLogued); // <- Aquí ya se guarda con rol en minúscula
+                setUser(userLogued); 
                 notifySuccess(`¡Bienvenido, ${userLogued.nombre}!`); 
-                navigate("/"); // <-- Podés cambiar a "/projects" si quieres que vaya directo a proyectos
+                navigate("/");
                 
             } else {
                 notifyError("Las credenciales son erróneas"); 
@@ -80,7 +80,6 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         try {
-            // Cambiamos las claves para que coincidan con el backend
             const payload = {
                 nombre: userData.nombre,
                 email: userData.email,

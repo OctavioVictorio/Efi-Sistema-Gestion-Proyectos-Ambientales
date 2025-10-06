@@ -18,29 +18,29 @@ const LoginForm = () => {
     };
 
     const validationSchema = Yup.object({
-        email: Yup.string().email("Correo electrónico inválido").required("Campo requerido"),
+        email: Yup.string().email("Email inválido").required("Campo requerido"),
         password: Yup.string().required("Campo requerido"),
     });
 
-    const onSubmit = async (values, { setSubmitting }) => {
+    const onSubmitLogin = async (values, { setSubmitting }) => {
         setSubmitting(true);
         await login(values);
         setSubmitting(false);
     };
 
     return (
-        <div className="flex justify-content-center align-items-center min-h-screen surface-ground">
-            <Card title="Iniciar sesión" className="w-full md:w-25rem shadow-3">
+        <div className="flex justify-content-center p-4">
+            <Card title="Iniciar sesión" className="w-full md:w-25rem">
                 <Formik
                     initialValues={initialValues}
                     validationSchema={validationSchema}
-                    onSubmit={onSubmit}
+                    onSubmit={onSubmitLogin}
                 >
                 {({ handleChange, values, isSubmitting }) => (
                     <Form className="p-fluid flex flex-column gap-3">
                         {/* Campo Email */}
                         <div className="field">
-                            <label htmlFor="email">Correo Electrónico</label>
+                            <label htmlFor="email">Email</label>
                             <InputText
                                 name="email"
                                 id="email"
