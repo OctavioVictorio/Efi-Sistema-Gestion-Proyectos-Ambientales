@@ -39,12 +39,6 @@ const TasksView = () => {
         }
     };
 
-    // Función para obtener el nombre del proyecto
-    const getProjectName = (id) => {
-        const project = projects.find(p => p.id === id);
-        return project ? project.nombre : 'Sin Proyecto';
-    };
-
     const statusBodyTemplate = (rowData) => {
         return (
             <Tag 
@@ -56,7 +50,8 @@ const TasksView = () => {
     };
     
     const projectBodyTemplate = (rowData) => {
-        return getProjectName(rowData.proyectoId);
+    const project = projects.find(p => p.id === rowData.id_proyecto); 
+    return project ? project.nombre : 'N/A';
     };
 
     const actionBodyTemplate = (rowData) => {
@@ -136,10 +131,10 @@ const TasksView = () => {
                 emptyMessage="No se encontraron tareas."
                 className="shadow-2"
             >
-                <Column field="titulo" header="Título" sortable style={{ minWidth: '150px' }}></Column>
-                <Column header="Proyecto" body={projectBodyTemplate} sortable style={{ minWidth: '150px' }}></Column>
+                <Column field="nombre" header="Título" sortable style={{ minWidth: '150px' }}></Column>
+                <Column field="id_proyecto" header="Proyecto Asociado" body={projectBodyTemplate} sortable style={{ minWidth: '150px' }}></Column>
                 <Column field="estado" header="Estado" body={statusBodyTemplate} sortable style={{ width: '150px' }}></Column>
-                <Column field="fechaVencimiento" header="Vencimiento" sortable dataType="date" body={(rowData) => formatDate(rowData.fechaVencimiento)} style={{ width: '150px' }}></Column>
+                <Column field="fecha_limite" header="Vencimiento" sortable dataType="date" body={(rowData) => formatDate(rowData.fecha_limite)} style={{ width: '150px' }}></Column>
                 <Column field="descripcion" header="Descripción" body={(rowData) => rowData.descripcion ? rowData.descripcion.substring(0, 50) + '...' : '-'}></Column>
                 <Column header="Acciones" body={actionBodyTemplate} exportable={false} style={{ width: '130px' }}></Column>
             </DataTable>

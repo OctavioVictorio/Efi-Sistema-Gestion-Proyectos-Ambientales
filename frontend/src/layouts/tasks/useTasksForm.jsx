@@ -1,12 +1,11 @@
 import { useState } from "react";
 
-// Estado inicial para una nueva tarea
 const initialFormState = {
     titulo: "",
     descripcion: "",
-    proyectoId: null, // ID del proyecto al que pertenece la tarea
-    fechaVencimiento: null, // Usaremos Date objects para PrimeReact Calendar
-    estado: "Pendiente" // Puede ser 'Pendiente', 'En Progreso', 'Completada'
+    proyectoId: null, 
+    fechaVencimiento: null, 
+    estado: "Pendiente" 
 };
 
 const useTasksForm = () => {
@@ -17,7 +16,6 @@ const useTasksForm = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Función para manejar componentes que devuelven objetos o valores complejos (como Dropdown/Calendar)
     const handleComplexChange = (name, value) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -27,7 +25,7 @@ const useTasksForm = () => {
         setFormData,
         handleChange,
         handleComplexChange,
-        initialFormState // Útil para resetear el formulario
+        initialFormState 
     };
 };
 

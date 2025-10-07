@@ -28,13 +28,14 @@ const { tasks, createTask, updateTask, loading } = useTasks();
 const { projects, loading: projectsLoading } = useProjects(); 
 const { formData, handleChange, setFormData, handleComplexChange } = useTasksForm();
 
-// Normalizar datos para edición (manejar fechas y project ID)
+
 const normalizeData = (task) => {
 if (!task) return {};
 return {
     ...task,
-    fechaVencimiento: task.fechaVencimiento ? new Date(task.fechaVencimiento) : null, 
-    proyectoId: task.proyectoId ? Number(task.proyectoId) : null,
+    fechaVencimiento: task.fecha_limite ? new Date(task.fecha_limite) : null, 
+    proyectoId: task.id_proyecto ? Number(task.id_proyecto) : null, 
+    titulo: task.nombre, 
 };
 };
 
@@ -54,39 +55,46 @@ if (id && tasks && tasks.length > 0) {
 }, [id, tasks, setFormData]);
 
 const handleSubmit = async (e) => {
-e.preventDefault();
+    e.preventDefault();
 
-// Validación con Notifier
-if (!formData.titulo || formData.titulo.trim().length < 2) {
-    notifyError("Validación", "El título de la tarea es obligatorio.");
-    return;
-}
-if (!formData.proyectoId) {
-    notifyError("Validación", "Debe seleccionar un proyecto asociado.");
-    return;
-}
+    // Validación con Notifier
+    if (!formData.titulo || formData.titulo.trim().length < 2) {
+        notifyError("Validación", "El título de la tarea es obligatorio.");
+        return;
+    }
+    if (!formData.proyectoId) {
+        notifyError("Validación", "Debe seleccionar un proyecto asociado.");
+        return;
+    }
 
-// Preparar el Payload: Convertir Date object a string ISO para el backend
-const payload = { 
-    ...formData,
-    fechaVencimiento: formData.fechaVencimiento ? formData.fechaVencimiento.toISOString().split('T')[0] : null,
-};
+    const payload = { 
+        nombre: formData.titulo, 
+        descripcion: formData.descripcion,
+        
+        id_proyecto: Number(formData.proyectoId), 
+        
+        fecha_limite: formData.fechaVencimiento 
+            ? formData.fechaVencimiento.toISOString().split('T')[0] 
+            : null, 
+        
+        estado: formData.estado, 
+    };
 
-let success = false;
+    let success = false;
 
-if (id) {
-    success = await updateTask(Number(id), payload);
-    if (success) notifySuccess("Actualización Exitosa", `Tarea "${formData.titulo}" actualizada.`);
-} else {
-    success = await createTask(payload);
-    if (success) notifySuccess("Creación Exitosa", `Tarea "${formData.titulo}" creada.`);
-}
+    if (id) {
+        success = await updateTask(Number(id), payload);
+        if (success) notifySuccess("Actualización Exitosa", `Tarea "${formData.titulo}" actualizada.`);
+    } else {
+        success = await createTask(payload);
+        if (success) notifySuccess("Creación Exitosa", `Tarea "${formData.titulo}" creada.`);
+    }
 
-if (success) {
-    navigate("/tasks");
-} else {
-    notifyError("Error al guardar", "Hubo un error desconocido al guardar la tarea.");
-}
+    if (success) {
+        navigate("/tasks");
+    } else {
+        notifyError("Error al guardar", "Hubo un error desconocido al guardar la tarea.");
+    }
 };
 
 const header = (
@@ -128,7 +136,7 @@ const isFormDisabled = loading || projectsLoading;
                 <Dropdown
                     id="proyectoId"
                     value={formData.proyectoId}
-                    onChange={(e) => handleComplexChange("proyectoId", e.value)}
+                    onChange={(e) => handleComplexChange("proyectoId", Number(e.value))}
                     options={projects}
                     optionLabel="nombre"
                     optionValue="id"

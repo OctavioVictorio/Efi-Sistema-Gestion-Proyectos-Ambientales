@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, useEffect } from "react";
-// Asumimos que tienes un servicio de tareas similar al de proyectos
 import taskService from "../services/tasks.service"; 
-// Importamos el Notifier para errores críticos
 import { notifyError } from "../utils/Notifier";
+import { useAuth } from "./AuthContext";
 
 const TaskContext = createContext();
 
 export const TaskProvider = ({ children }) => {
+    const { user, loading: authLoading } = useAuth();
+
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -61,10 +62,16 @@ export const TaskProvider = ({ children }) => {
         }
     };
 
-    // Carga inicial
     useEffect(() => {
+    if (!authLoading && user) {
         fetchTasks();
-    }, []);
+    }
+
+    if (!authLoading && !user) {
+        setTasks([]);
+    }
+
+}, [authLoading, user]);
 
     return (
         <TaskContext.Provider
