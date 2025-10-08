@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import projectService from "../services/projects.service";
+import { notifyError, notifySuccess } from "../utils/Notifier";
 
 const ProjectContext = createContext();
 
@@ -14,6 +15,9 @@ export const ProjectProvider = ({ children }) => {
       setProjects(res.data);
     } catch (err) {
       console.error("Error al cargar proyectos:", err);
+      if (err.response?.status !== 401) {
+        notifyError("Error de Carga", "No se pudo obtener la lista de proyectos.");
+      }
     } finally {
       setLoading(false);
     }
@@ -26,6 +30,7 @@ export const ProjectProvider = ({ children }) => {
       return true;
     } catch (err) {
       console.error("Error al crear proyecto:", err);
+      notifyError("Error", "Fallo al crear el proyecto. Verifica los datos.");
       return false;
     }
   };
@@ -39,6 +44,7 @@ export const ProjectProvider = ({ children }) => {
       return true;
     } catch (err) {
       console.error("Error al actualizar proyecto:", err);
+      notifyError("Error", "Fallo al actualizar el proyecto. Verifica los datos.");
       return false;
     }
   };
@@ -47,9 +53,13 @@ export const ProjectProvider = ({ children }) => {
     try {
       await projectService.remove(id);
       setProjects((prev) => prev.filter((p) => p.id !== id));
+      notifySuccess("Éxito", "Proyecto eliminado correctamente.");
       return true;
     } catch (err) {
       console.error("Error al eliminar proyecto:", err);
+      if (err.response?.status !== 401) {
+        notifyError("Error", "Fallo al eliminar el proyecto.");
+      }
       return false;
     }
   };

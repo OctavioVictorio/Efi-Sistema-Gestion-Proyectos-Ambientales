@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useProjects } from "../../context/ProjectContext";
 import useProjectsForm from "./useProjectsForm";
-
 import { notifySuccess, notifyError } from "../../utils/Notifier"; 
+
 // PrimeReact Components
 import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
@@ -62,7 +62,6 @@ const ProjectsForm = () => {
         fecha_fin: formData.fecha_fin ? formData.fecha_fin.toISOString().split('T')[0] : null,
     };
     
-    // 1. DECLARA LA VARIABLE 'success'
     let success = false; 
 
     if (id) {
@@ -71,13 +70,10 @@ const ProjectsForm = () => {
       success = await createProject(payload);
     }
 
-    // 2. Este bloque solo se ejecuta si la API devuelve true
     if (success) {
-      // Usamos los campos 'summary' y 'detail' para mejorar el toast
       notifySuccess('Éxito', `Proyecto ${id ? "actualizado" : "creado"} exitosamente.`);
       navigate("/projects");
     } else {
-      // 3. Este bloque se ejecuta si la API devuelve false
       notifyError('Error de API', "Error al guardar el proyecto. Intenta de nuevo.");
     }
   };

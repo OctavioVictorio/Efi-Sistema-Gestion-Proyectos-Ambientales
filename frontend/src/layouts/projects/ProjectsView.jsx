@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useProjects } from "../../context/ProjectContext";
 
-// Importamos el Notifier (asumiendo que la ruta "../../utils/Notifier" es correcta)
 import { notifySuccess, notifyError} from "../../utils/Notifier"; 
 
 // PrimeReact Components
@@ -20,7 +19,6 @@ const ProjectsView = () => {
     fetchProjects();
   }, []); 
 
-  // --- Utility Functions (Mantenemos estas funciones) ---
   const formatDate = (val) => {
     if (!val) return "N/A";
     try {
@@ -46,11 +44,9 @@ const ProjectsView = () => {
       return { label: 'Activo', severity: 'warning', icon: 'pi-sun' };
   };
 
-  // --- Nueva Función para Eliminar con ConfirmDialog ---
   const handleDelete = (project) => {
     confirmDialog({
       message: (
-        // Mensaje más atractivo usando HTML/JSX dentro del diálogo
         <div className="flex flex-column gap-2">
             <h5 className="mb-1">¿Confirmas la eliminación de este proyecto?</h5>
             <p className="text-600">
@@ -61,11 +57,10 @@ const ProjectsView = () => {
         </div>
       ),
       header: 'Eliminar Proyecto',
-      icon: 'pi pi-exclamation-circle text-red-500', // Icono de advertencia mejorado
+      icon: 'pi pi-exclamation-circle text-red-500', 
       acceptClassName: 'p-button-danger',
       
-      // Lógica a ejecutar si el usuario acepta
-      accept: async () => {
+        accept: async () => {
         const success = await deleteProject(project.id);
         if (success) {
           notifySuccess('Eliminado', `El proyecto "${project.nombre}" fue retirado del sistema.`);
@@ -73,9 +68,8 @@ const ProjectsView = () => {
           notifyError('Error', 'No se pudo eliminar el proyecto. Intenta de nuevo.');
         }
       },
-      // Lógica a ejecutar si el usuario rechaza (opcional)
       reject: () => {
-        // notifyInfo('Operación Cancelada', 'La eliminación del proyecto fue cancelada.');
+        notifyInfo('Operación Cancelada', 'La eliminación del proyecto fue cancelada.');
       }
     });
   };
@@ -96,7 +90,6 @@ const ProjectsView = () => {
                         <Link to={`/projects/${project.id}/edit`} className="flex-1">
                             <Button label="Editar" icon="pi pi-pencil" className="w-full p-button-sm p-button-secondary" />
                         </Link>
-                        {/* 4. Llamamos a la nueva función handleDelete */}
                         <Button
                             label="Eliminar"
                             icon="pi pi-trash"
@@ -120,7 +113,6 @@ const ProjectsView = () => {
                     {truncate(project.descripcion, 140)}
                 </p>
 
-                {/* Este DIV empuja los botones hacia abajo (corrección de diseño solicitada anteriormente) */}
                 <div className="flex-grow-1" /> 
 
                 <div className="flex justify-content-between align-items-center mt-3 text-sm text-600 border-top-1 pt-3 surface-border">
@@ -140,7 +132,6 @@ const ProjectsView = () => {
 
   return (
     <div className="p-5">
-      {/* 1. Componente necesario para que confirmDialog funcione */}
       <ConfirmDialog /> 
 
       <div className="flex justify-content-between align-items-center mb-5">
