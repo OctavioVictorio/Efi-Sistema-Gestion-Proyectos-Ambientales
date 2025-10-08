@@ -33,7 +33,7 @@ const getResourceById = async (req, res) => {
 // Crear un nuevo recurso
 const createResource = async (req, res) => {
     try {
-        const { tipo, cantidad, disponible, id_proyecto } = req.body;
+        const { nombre, tipo, cantidad, disponible, id_proyecto } = req.body;
 
         // Validar que exista el proyecto
         const project = await Project.findByPk(id_proyecto);
@@ -41,7 +41,7 @@ const createResource = async (req, res) => {
             return res.status(404).json({ message: 'Proyecto no encontrado.' });
         }
 
-        const newResource = await Resource.create({ tipo, cantidad, disponible, id_proyecto });
+        const newResource = await Resource.create({ nombre, tipo, cantidad, disponible, id_proyecto });
         res.status(201).json(newResource);
     } catch (error) {
         console.error('Error al crear recurso:', error);

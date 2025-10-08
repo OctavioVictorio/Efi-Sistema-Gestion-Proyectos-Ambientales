@@ -29,6 +29,11 @@ const Navbar = () => {
             icon: 'pi pi-list',
             command: () => navigate('/tasks'),
         },
+        isAuthenticated && {
+            label: 'Recursos',
+            icon: 'pi pi-box',
+            command: () => navigate('/resources'),
+        },
 
         isAdminOrGestor && {
             label: 'Gestión de Usuarios',
