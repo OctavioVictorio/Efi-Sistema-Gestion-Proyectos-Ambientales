@@ -26,12 +26,14 @@ const HomeView = () => {
                     Únete a la red de voluntarios que están cambiando el planeta, organizando y gestionando proyectos ecológicos.
                 </p>
                 <div className="flex justify-content-center gap-3">
-                    <Button 
-                        label="Únete Ahora" 
-                        icon="pi pi-user-plus" 
-                        className="p-button-success p-button-lg" 
-                        onClick={() => navigate('/register')}
-                    />
+                    {!user && (
+                        <Button 
+                            label="Únete Ahora" 
+                            icon="pi pi-user-plus" 
+                            className="p-button-success p-button-lg" 
+                            onClick={() => navigate('/register')}
+                        />
+                    )}
                     <Button 
                         label="Ver Proyectos" 
                         icon="pi pi-search" 
