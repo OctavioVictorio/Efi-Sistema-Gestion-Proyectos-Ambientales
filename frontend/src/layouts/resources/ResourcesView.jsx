@@ -1,5 +1,6 @@
 import { useResources } from '../../context/ResourceContext';
 import { useProjects } from '../../context/ProjectContext'; 
+import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 
 // PrimeReact
@@ -7,15 +8,20 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import { Tag } from 'primereact/tag';
 
 const ResourcesView = () => {
     const { resources, loading, deleteResource } = useResources();
     const { projects } = useProjects(); 
+    const { user } = useAuth();
+
+    // Muestra el nombre del proyecto asociado
     const projectBodyTemplate = (rowData) => {
         const project = projects.find(p => p.id === rowData.id_proyecto); 
         return project ? project.nombre : 'No asignado';
     };
 
+    // Botones de acción solo para gestores/admin
     const handleDelete = async (id) => {
         if (window.confirm("¿Estás seguro de que quieres eliminar este recurso?")) {
             await deleteResource(id);
@@ -23,6 +29,7 @@ const ResourcesView = () => {
     };
 
     const actionBodyTemplate = (rowData) => {
+        if (user.rol === 'voluntario') return null; // Voluntario no ve botones
         return (
             <div className="flex gap-2">
                 <Link to={`/resources/${rowData.id}/edit`}>
@@ -37,38 +44,51 @@ const ResourcesView = () => {
         );
     };
 
+    // Header con botón "Nuevo Recurso" solo para gestores/admin
     const header = (
         <div className="flex justify-content-between align-items-center">
             <h3 className="m-0">Gestión de Recursos</h3>
-            <Link to="/resources/new">
-                <Button label="Nuevo Recurso" icon="pi pi-plus" severity="success" />
-            </Link>
+            {user.rol !== 'voluntario' && (
+                <Link to="/resources/new">
+                    <Button label="Nuevo Recurso" icon="pi pi-plus" severity="success" />
+                </Link>
+            )}
         </div>
     );
 
     return (
         <div className="p-5 surface-ground">
-            <Card title={header} className="shadow-4">
-                <DataTable 
-                    value={resources} 
-                    loading={loading}
-                    dataKey="id" 
-                    responsiveLayout="scroll"
-                    paginator rows={10}
-                >
-                    <Column field="nombre" header="Nombre" sortable />
-                    <Column field="tipo" header="Tipo" sortable /> 
-                    <Column field="cantidad" header="Cantidad" sortable /> 
-                    
-                    <Column 
-                        field="id_proyecto" 
-                        header="Proyecto Asociado" 
-                        body={projectBodyTemplate}
-                        sortable 
-                    />
-                    
-                    <Column header="Acciones" body={actionBodyTemplate} exportable={false} style={{ width: '10%' }} />
-                </DataTable>
+            <Card className="shadow-4">
+                {resources.length === 0 && !loading ? (
+                    <p className="text-center text-gray-500">No hay recursos disponibles.</p>
+                ) : (
+                    <DataTable 
+                        value={resources} 
+                        loading={loading}
+                        dataKey="id" 
+                        responsiveLayout="scroll"
+                        paginator 
+                        rows={10}
+                        header={header}
+                        emptyMessage="No hay recursos disponibles."
+                    >
+                        <Column field="nombre" header="Nombre" sortable />
+                        <Column field="tipo" header="Tipo" sortable /> 
+                        <Column field="cantidad" header="Cantidad" sortable /> 
+                        <Column 
+                            field="id_proyecto" 
+                            header="Proyecto Asociado" 
+                            body={projectBodyTemplate} 
+                            sortable 
+                        />
+                        <Column 
+                            header="Acciones" 
+                            body={actionBodyTemplate} 
+                            exportable={false} 
+                            style={{ width: '10%' }} 
+                        />
+                    </DataTable>
+                )}
             </Card>
         </div>
     );

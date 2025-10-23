@@ -1,6 +1,6 @@
 const { Resource, Project } = require("../models");
 
-// Obtener todos los recursos
+// Obtener todos los recursos (todos los roles pueden ver)
 const getAllResources = async (req, res) => {
     try {
         const resources = await Resource.findAll({
@@ -13,7 +13,7 @@ const getAllResources = async (req, res) => {
     }
 };
 
-// Obtener recurso por ID
+// Obtener recurso por ID (todos los roles pueden ver)
 const getResourceById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -30,16 +30,18 @@ const getResourceById = async (req, res) => {
     }
 };
 
-// Crear un nuevo recurso
+// Crear un nuevo recurso (solo admin/gestor)
 const createResource = async (req, res) => {
+    if (req.user.rol === "voluntario") {
+        return res.status(403).json({ message: "No tiene permiso para crear recursos." });
+    }
+
     try {
         const { nombre, tipo, cantidad, disponible, id_proyecto } = req.body;
 
         // Validar que exista el proyecto
         const project = await Project.findByPk(id_proyecto);
-        if (!project) {
-            return res.status(404).json({ message: 'Proyecto no encontrado.' });
-        }
+        if (!project) return res.status(404).json({ message: 'Proyecto no encontrado.' });
 
         const newResource = await Resource.create({ nombre, tipo, cantidad, disponible, id_proyecto });
         res.status(201).json(newResource);
@@ -49,14 +51,17 @@ const createResource = async (req, res) => {
     }
 };
 
-// Actualizar recurso
+// Actualizar recurso (solo admin/gestor)
 const updateResource = async (req, res) => {
+    if (req.user.rol === "voluntario") {
+        return res.status(403).json({ message: "No tiene permiso para editar recursos." });
+    }
+
     try {
         const { id } = req.params;
         const resource = await Resource.findByPk(id);
-        if (!resource) {
-            return res.status(404).json({ message: 'Recurso no encontrado.' });
-        }
+        if (!resource) return res.status(404).json({ message: 'Recurso no encontrado.' });
+
         await resource.update(req.body);
         res.status(200).json({ message: 'Recurso actualizado correctamente.' });
     } catch (error) {
@@ -65,14 +70,17 @@ const updateResource = async (req, res) => {
     }
 };
 
-// Eliminar recurso
+// Eliminar recurso (solo admin/gestor)
 const deleteResource = async (req, res) => {
+    if (req.user.rol === "voluntario") {
+        return res.status(403).json({ message: "No tiene permiso para eliminar recursos." });
+    }
+
     try {
         const { id } = req.params;
         const resource = await Resource.findByPk(id);
-        if (!resource) {
-            return res.status(404).json({ message: 'Recurso no encontrado.' });
-        }
+        if (!resource) return res.status(404).json({ message: 'Recurso no encontrado.' });
+
         await resource.destroy();
         res.status(200).json({ message: 'Recurso eliminado correctamente.' });
     } catch (error) {

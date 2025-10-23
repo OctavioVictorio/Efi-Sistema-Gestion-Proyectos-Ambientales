@@ -5,7 +5,7 @@ const { auth } = require("../middleware/auth");
 const { checkRole } = require("../middleware/checkRole");
 
 // Obtener todas las tareas (solo admin o gestor)
-router.get("/", auth, checkRole(["admin", "gestor"]), tasksController.getAllTasks);
+router.get("/", auth, checkRole(["admin", "gestor", "voluntario"]), tasksController.getAllTasks);
 
 // Obtener una tarea por ID (admin, gestor o el mismo voluntario asignado)
 router.get("/:id", auth, tasksController.getTaskById);

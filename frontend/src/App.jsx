@@ -93,7 +93,7 @@ function App() {
                       {/* Gestión de Recursos (Solo Admin y Gestor) */}
                       <Route path='/resources/*' element={ 
                         <PrivateRoute>
-                          <RequireRole roles={['admin', 'gestor']}>
+                          <RequireRole roles={['admin', 'gestor', 'voluntario']}>
                             <ResourcesRoutes />
                           </RequireRole>
                         </PrivateRoute>

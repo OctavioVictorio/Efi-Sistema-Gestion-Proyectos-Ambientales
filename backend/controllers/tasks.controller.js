@@ -3,25 +3,12 @@ const { Task, Project, User } = require("../models");
 // Obtener todas las tareas
 const getAllTasks = async (req, res) => {
   try {
-    let tasks;
-    if (req.user.rol === "voluntario") {
-      // Un voluntario solo ve sus tareas
-      tasks = await Task.findAll({
-        where: { asignado_a: req.user.id },
-        include: [
-          { model: Project, attributes: ["id", "nombre"] },
-          { model: User, attributes: ["id", "nombre", "correo"] }
-        ]
-      });
-    } else {
-      // Admin y gestor ven todas las tareas
-      tasks = await Task.findAll({
-        include: [
-          { model: Project, attributes: ["id", "nombre"] },
-          { model: User, attributes: ["id", "nombre", "correo"] }
-        ]
-      });
-    }
+    const tasks = await Task.findAll({
+      include: [
+        { model: Project, attributes: ["id", "nombre"] },
+        { model: User, attributes: ["id", "nombre", "correo"] }
+      ]
+    });
 
     res.status(200).json(tasks);
   } catch (error) {
@@ -42,11 +29,6 @@ const getTaskById = async (req, res) => {
     });
 
     if (!task) return res.status(404).json({ message: "Tarea no encontrada." });
-
-    // Validación de permisos
-    if (req.user.rol === "voluntario" && task.asignado_a !== req.user.id) {
-      return res.status(403).json({ message: "No tiene permiso sobre esta tarea." });
-    }
 
     res.status(200).json(task);
   } catch (error) {
@@ -80,25 +62,31 @@ const createTask = async (req, res) => {
 const updateTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const task = await Task.findByPk(id);
+    const task = await Task.findByPk(id, { include: [{ model: User }] });
 
     if (!task) return res.status(404).json({ message: "Tarea no encontrada." });
 
-    // Validación de permisos
-    if (req.user.rol === "voluntario" && task.asignado_a !== req.user.id) {
-      return res.status(403).json({ message: "No tiene permiso para actualizar esta tarea." });
+    const updates = req.body;
+
+    if (req.user.rol === "voluntario") {
+      // Voluntario: solo puede modificar estado de cualquier tarea
+      if (!updates.estado) {
+        return res.status(400).json({ message: "El voluntario debe proveer el estado de la tarea." });
+      }
+      await task.update({ estado: updates.estado });
+    } else {
+      // Admin/Gestor: pueden modificar todos los campos
+      const { nombre, descripcion, fecha_limite, estado, id_proyecto, asignado_a } = updates;
+
+      await task.update({
+        nombre: nombre !== undefined ? nombre : task.nombre,
+        descripcion: descripcion !== undefined ? descripcion : task.descripcion,
+        fecha_limite: fecha_limite !== undefined ? fecha_limite : task.fecha_limite,
+        estado: estado !== undefined ? estado : task.estado,
+        id_proyecto: id_proyecto !== undefined ? id_proyecto : task.id_proyecto,
+        asignado_a: asignado_a !== undefined ? asignado_a : task.asignado_a
+      });
     }
-
-    const { nombre, descripcion, fecha_limite, estado, id_proyecto, asignado_a } = req.body;
-
-    await task.update({
-      nombre: nombre || task.nombre,
-      descripcion: descripcion || task.descripcion,
-      fecha_limite: fecha_limite || task.fecha_limite,
-      estado: estado || task.estado,
-      id_proyecto: id_proyecto || task.id_proyecto,
-      asignado_a: asignado_a || task.asignado_a
-    });
 
     res.status(200).json({ message: "Tarea actualizada correctamente." });
   } catch (error) {
