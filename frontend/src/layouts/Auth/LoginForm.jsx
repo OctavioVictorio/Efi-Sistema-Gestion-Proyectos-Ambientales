@@ -87,14 +87,15 @@ const LoginForm = () => {
 
                         {/* Botones de Navegación */}
                         <Button
-                            label="¿No tienes una cuenta? Regístrate."
-                            link
-                            onClick={() => navigate("/register")}
-                        />
-                        <Button
                             label="¿Olvidaste tu contraseña?"
                             link
                             onClick={() => navigate("/forgot-password")} 
+                        />
+                        <p className="text-center">¿No tienes una cuenta?</p>
+                        <Button
+                            label="Regístrate"
+                            link
+                            onClick={() => navigate("/register")}
                         />
                     </Form>
                 )}

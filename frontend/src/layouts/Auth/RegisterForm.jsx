@@ -128,8 +128,9 @@ const RegisterForm = () => {
                             disabled={isSubmitting}
                         />
                         {/* Navegación */}
+                        <p className="text-center">¿Ya tienes una cuenta?</p>
                         <Button
-                            label="¿Ya tienes una cuenta? Inicia sesión"
+                            label="Inicia sesión"
                             link
                             className="mt-2"
                             onClick={() => navigate("/login")} 

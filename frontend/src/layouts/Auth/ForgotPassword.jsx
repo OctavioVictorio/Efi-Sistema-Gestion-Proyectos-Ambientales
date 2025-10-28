@@ -58,7 +58,7 @@ const ForgotPassword = () =>{
                                 className="mt-3"
                                 disabled={loading || isSubmitting}
                             />
-                            <Link to="/login" className="p-button p-button-link text-center mt-2">
+                            <Link to="/login" className="mt-3 text-center block">
                                 Volver al inicio de sesión
                             </Link>
                         </Form>
