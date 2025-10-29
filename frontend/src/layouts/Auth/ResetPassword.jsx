@@ -1,41 +1,35 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from 'yup';
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 
-const ResetPassword = () =>{
-
-    // 1. Esquema de Validación
+const ResetPassword = () => {
     const resetSchema = Yup.object({
         password: Yup.string().min(6, "Mínimo 6 caracteres").required('La contraseña es requerida'),
         confirm: Yup.string().oneOf([Yup.ref("password")], "Las contraseñas no coinciden").required('Repite la contraseña')
     });
 
-    // 2. Hooks y Estados
-    const {resetPassword} = useContext(AuthContext);
+    const { resetPassword } = useContext(AuthContext);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [params, setParams] = useState({token: '', id:''});
-    
-    // 3. Capturar ID y Token de la URL
-    useEffect(()=>{
+    const [params, setParams] = useState({ token: '', id: '' });
+
+    useEffect(() => {
         const url = new URLSearchParams(window.location.search);
-        setParams({token: url.get("token") || "", id: url.get('id') || ''});
+        setParams({ token: url.get("token") || "", id: url.get('id') || '' });
     }, []);
 
-    // 4. Verificación de Enlace
     const invalidLink = !params.token || !params.id;
 
-    // 5. Renderizado
-    return(
+    return (
         <div className="flex justify-content-center p-4">
             <Card 
                 title={invalidLink ? 'Enlace Inválido' : 'Establecer Nueva Contraseña'} 
-                className="w-full md:w-25rem "
+                className="w-full md:w-25rem"
             >
                 {invalidLink ? (
                     <div>
@@ -49,14 +43,13 @@ const ResetPassword = () =>{
                     <Formik
                         initialValues={{ password: '', confirm: '' }}
                         validationSchema={resetSchema}
-                        onSubmit={async (values, {resetForm}) => {
+                        onSubmit={async (values, { resetForm }) => {
                             setLoading(true);
-                            
-                            const success = await resetPassword({
-                                id: params.id,
-                                token: params.token,
-                                contraseña: values.password 
-                            });
+                            const success = await resetPassword(
+                                params.id,
+                                params.token,
+                                values.password
+                            );
 
                             if (success) {
                                 resetForm();
@@ -78,11 +71,12 @@ const ResetPassword = () =>{
                                         feedback={false}
                                         placeholder="Nueva contraseña"
                                         className={errors.password && touched.password ? 'p-invalid' : ''}
+                                        autocomplete="new-password"
                                         disabled={loading}
                                     />
                                     <ErrorMessage name="password" component="small" className="p-error block mt-1" />
                                 </div>
-                                
+
                                 <div>
                                     <label htmlFor="confirm">Repetir Contraseña</label>
                                     <Password
@@ -94,11 +88,12 @@ const ResetPassword = () =>{
                                         feedback={false}
                                         placeholder="Repetir contraseña"
                                         className={errors.confirm && touched.confirm ? 'p-invalid' : ''}
+                                        autocomplete="new-password"
                                         disabled={loading}
                                     />
                                     <ErrorMessage name="confirm" component="small" className="p-error block mt-1" />
                                 </div>
-                                
+
                                 <Button 
                                     type="submit"
                                     label="Guardar Contraseña"
@@ -113,6 +108,6 @@ const ResetPassword = () =>{
             </Card>
         </div>
     );
-}
+};
 
 export default ResetPassword;
