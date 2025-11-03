@@ -11,7 +11,6 @@ const HomeView = () => {
         <div className="surface-ground">
             <div className="text-center p-6 md:p-8" 
                 style={{ 
-                    backgroundImage: 'url(/naturaleza.jpg)',
                     backgroundColor: '#1d3557',
                     color: 'white',
                     minHeight: '60vh',
