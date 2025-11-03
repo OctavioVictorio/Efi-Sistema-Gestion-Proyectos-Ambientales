@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Importar las rutas que usaremos
 const authRouter = require('./routes/auth.routes');
@@ -22,6 +22,6 @@ app.use('/projects', projectsRouter);
 app.use('/tasks', tasksRouter);
 app.use('/resources', resourcesRouter);
 
-app.listen(port, () => {
-    console.log(`Servidor corriendo en el puerto ${port}`);
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
