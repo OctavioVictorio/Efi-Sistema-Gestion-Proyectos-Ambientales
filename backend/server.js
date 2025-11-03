@@ -1,24 +1,29 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-}));
-app.use(express.json());
-
-// Importar las rutas que usaremos
 const authRouter = require('./routes/auth.routes');
 const usersRouter = require('./routes/users.routes');
 const projectsRouter = require('./routes/projects.routes');
 const tasksRouter = require('./routes/tasks.routes');
 const resourcesRouter = require('./routes/resources.routes');
 
-// Usar las rutas
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*'); 
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', true); 
+
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200); 
+    }
+    next();
+});
+
+app.use(express.json());
+
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/projects', projectsRouter);
