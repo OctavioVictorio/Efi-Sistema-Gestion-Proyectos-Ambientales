@@ -18,7 +18,7 @@ Implementa contextos globales (React Context) para la gestión de estado y rutas
 ## 🧱 Estructura del Proyecto
 
 📦 proyecto
-├── backend
+backend
 │ ├── config
 │ │ └── config.json
 │ ├── controllers
@@ -52,7 +52,10 @@ Implementa contextos globales (React Context) para la gestión de estado y rutas
 │ ├── server.js
 │ └── ...
 │
-└── frontend
+
+---
+
+frontend
 ├── src
 │ ├── components
 │ │ └── Navbar.jsx
