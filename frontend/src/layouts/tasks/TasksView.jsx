@@ -3,8 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTasks } from "../../context/TaskContext";
 import { useProjects } from "../../context/ProjectContext"; 
 import { useAuth } from "../../context/AuthContext";
-
-
 import { notifySuccess, notifyError} from "../../utils/Notifier"; 
 
 // PrimeReact Components
@@ -16,7 +14,6 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 
 const TasksView = () => {
-    // 1. OBTENCIÓN DE DATOS Y ESTADOS DE CARGA
     const { tasks, fetchTasks, deleteTask, loading: tasksLoading } = useTasks(); 
     const { projects, fetchProjects, loading: projectsLoading } = useProjects(); 
     
@@ -25,12 +22,9 @@ const TasksView = () => {
 
     const isCurrentUserVoluntario = user?.rol === 'voluntario';
     
-    // Bandera de Carga Global
     const isGlobalLoading = tasksLoading || authLoading || projectsLoading; 
     
-    // 2. EFECTO DE CARGA ESTABLE
     useEffect(() => {
-        // Depender de authLoading para garantizar que el 'user' esté cargado antes de hacer fetch
         if (!authLoading) { 
             fetchTasks();
             fetchProjects();
@@ -71,44 +65,17 @@ const TasksView = () => {
     return project ? project.nombre : 'N/A';
     };
 
-    // 3. actionBodyTemplate (Lógica de permisos robusta - CORRECCIÓN DE TIPOS FINAL)
     const actionBodyTemplate = (rowData) => {
         
         if (isGlobalLoading) {
             return null; 
         }
 
-        // ***** SOLUCIÓN DEFINITIVA DE TIPOS: FORZAR a NUMBER la comparación *****
-        // 1. Convertimos el ID del usuario del token a un número entero.
-        const currentUserIdNumber = user?.id ? parseInt(user.id) : null;
-        
-        // 2. Usamos el ID de la tarea asignada tal cual viene (Sequelize lo da como Number o String/Number).
+        const currentUserIdNumber = user?.id ? parseInt(user.id) : null;       
         const taskAssignedId = rowData.asignado_a; 
-
-        // 3. Comprobación de que el usuario logueado es el asignado a esta tarea.
-        // Usamos comparación estricta de Number (int) contra el ID de la BD.
         const isAssignedUser = taskAssignedId === currentUserIdNumber;
-
-        // Permisos de Edición: 
-        // Admin/Gestor SIEMPRE puede editar.
-        // Voluntario SOLO si es la tarea asignada (isAssignedUser es true).
         const canEdit = !isCurrentUserVoluntario || (isCurrentUserVoluntario && isAssignedUser);
-
-        // Permiso de Eliminación: Solo Admin/Gestor.
-        // **ESTO ES LO QUE SOLICITAS:** El voluntario NUNCA puede eliminar.
         const canDelete = !isCurrentUserVoluntario;
-        
-        // 🚨 DEBUG CRÍTICO: Descomenta esto para ver qué valores no coinciden en la consola del navegador:
-        /*
-        if (isCurrentUserVoluntario && !canEdit) {
-            console.warn(`SIN ACCIONES para la tarea ${rowData.nombre}. Valores fallidos:`, {
-                ID_Tarea_Asignada_DB: taskAssignedId, // Valor original de la BD (probablemente Number)
-                ID_Usuario_Logueado_NUMBER: currentUserIdNumber, // Valor forzado a Number
-                Coinciden_con_Number: taskAssignedId === currentUserIdNumber
-            });
-        }
-        */
-
         
         return (
             <div className="flex gap-2">
@@ -120,7 +87,6 @@ const TasksView = () => {
                         onClick={() => navigate(`/tasks/${rowData.id}/edit`)} 
                     />
                 
-                {/* Botón de Eliminar (VISIBLE SOLO si canDelete es true, o sea, NO es voluntario) */}
                 {canDelete && (
                     <Button 
                         icon="pi pi-trash" 
@@ -136,7 +102,6 @@ const TasksView = () => {
 
     const handleDelete = (task) => {
         confirmDialog({
-        // Cambiado task.titulo a task.nombre si "nombre" es el campo que contiene el título
         message: `¿Estás seguro de que deseas eliminar la tarea: "${task.nombre}"?`,
         header: 'Confirmar Eliminación',
         icon: 'pi pi-exclamation-circle text-red-500', 
@@ -144,7 +109,6 @@ const TasksView = () => {
         
         accept: async () => {
             const success = await deleteTask(task.id);
-            // Cambiado task.titulo a task.nombre
             if (success) {
             notifySuccess('Eliminado', `La tarea "${task.nombre}" fue eliminada.`);
             } else {
@@ -156,7 +120,6 @@ const TasksView = () => {
 
     const canUserCreate = user?.rol === 'admin' || user?.rol === 'gestor';
 
-    // *** LÓGICA DE MENSAJES PARA CERO TAREAS ***
     const EmptyMessage = () => {
         if (isCurrentUserVoluntario) {
             return {
@@ -172,7 +135,6 @@ const TasksView = () => {
         };
     };
     const emptyMsg = EmptyMessage();
-    // *********************************************************
 
     return (
         <div className="p-5">
@@ -184,7 +146,6 @@ const TasksView = () => {
                 Gestión de Tareas
             </h1>
             
-            {/* Botón Nueva Tarea: Solo para Admin/Gestor */}
             {canUserCreate && (
                 <Link to="/tasks/new">
                 <Button 
@@ -197,7 +158,6 @@ const TasksView = () => {
             )}
         </div>
 
-        {/* Carga o Datos */}
         {isGlobalLoading ? (
             <div className="text-center py-6">
             <ProgressSpinner style={{width: '50px', height: '50px'}} strokeWidth="4" animationDuration=".8s" />

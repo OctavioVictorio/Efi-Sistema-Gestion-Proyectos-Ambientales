@@ -13,11 +13,6 @@ const Navbar = () => {
     const isAdminOrGestor = user && (user.rol === 'admin' || user.rol === 'gestor');
 
     const modelItems = [
-        {
-            label: 'Home',
-            icon: 'pi pi-home',
-            command: () => navigate('/')
-        },
         
         isAuthenticated && {
             label: 'Proyectos',
@@ -42,24 +37,22 @@ const Navbar = () => {
         },
     ].filter(Boolean); 
 
-    // 2. Elemento de Inicio (Logo y Título)
     const start = (
         <div className="flex align-items-center gap-2 mr-4 cursor-pointer" onClick={() => navigate('/')}>
-            <i className="pi pi-globe text-2xl text-white"></i> 
+            <i className="pi pi-globe text-2xl" style={{ color: '#2a9d8f' }}></i> 
             <span className="text-xl font-bold text-white">EcoGestor</span>
         </div>
     );
 
-    // 3. Elementos del Extremo Derecho (Autenticación o Usuario)
     const end = isAuthenticated ? (
         <div className="flex align-items-center gap-3">
             <span className="text-sm font-semibold text-white">
-                Bienvenido, <span className="font-bold text-yellow-300">{user.nombre}</span>
+                Bienvenido, <span className="font-bold" style={{ color: '#2a9d8f' }}>{user.nombre}</span> 
             </span>
             <Avatar 
                 label={user.nombre.charAt(0).toUpperCase()} 
                 size="large" 
-                style={{ backgroundColor: '#4caf50', color: '#ffffff' }} 
+                style={{ backgroundColor: '#2a9d8f', color: '#ffffff' }} 
                 shape="circle" 
                 title={`Rol: ${user.rol}`}
             />
@@ -77,14 +70,15 @@ const Navbar = () => {
                 <Button
                     label="Iniciar Sesión"
                     icon="pi pi-sign-in"
-                    className="p-button-outlined p-button-secondary"
+                    className="p-button-outlined"
+                    style={{ color: 'white', borderColor: 'white' }}
                 />
             </Link>
             <Link to="/register" className="no-underline">
                 <Button
                     label="Registrarse"
                     icon="pi pi-user-plus"
-                    severity="success"
+                    style={{ backgroundColor: '#2a9d8f', borderColor: '#2a9d8f' }}
                 />
             </Link>
         </div>
@@ -98,7 +92,7 @@ const Navbar = () => {
                 start={start} 
                 end={end} 
                 className="shadow-3 border-none"
-                style={{ backgroundColor: '#1d3557', borderColor: '#1d3557', color: 'white' }} 
+                style={{ backgroundColor: '#002b5b', borderColor: '#002b5b', color: 'white' }} 
             />
         </div>
     );
